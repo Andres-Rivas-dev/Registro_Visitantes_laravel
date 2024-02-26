@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Visitantes;
 use App\Models\GeneracionEdad;
+use App\Helpers\VisitantesHelper;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -13,7 +15,7 @@ class VisitantesController extends Controller
     public function getVisitantes()
     {
         $get = Visitantes::with('generacion')->get();
-        return $get;
+        return response()->json($get, 200);
     }
 
     public function create(Request $request)
@@ -32,42 +34,33 @@ class VisitantesController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $validator->errors();
+            return response()->json($validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+
+        try{
+            $gen = VisitantesHelper::clasificacionEdad($request->fecha_nacimiento);
+
+            $vis = new Visitantes();
+            $vis->dui = $request->dui;
+            $vis->nombres = $request->nombres;
+            $vis->apellidos = $request->apellidos;
+            $vis->fecha_nacimiento = $request->fecha_nacimiento;
+            $vis->id_generacion = $gen;
+            $vis->telefono = $request->telefono;
+            $vis->email    = $request->email;
+            $vis->save();
+
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json('(error: ' . $e->getCode() . ") " . $e->getMessage());
         }
         
+        DB::commit();
 
-        $vis = new Visitantes();
-        $vis->dui = $request->dui;
-        $vis->nombres = $request->nombres;
-        $vis->apellidos = $request->apellidos;
-        $vis->fecha_nacimiento = $request->fecha_nacimiento;
-        $vis->telefono = $request->telefono;
-        $vis->email    = $request->email;
-        $vis->save();
-
-        self::clasificacionEdad($vis);       
-
-        return $vis;
+        return response()->json($vis, 201);
     }
-
-    public static function clasificacionEdad($vis){
-
-        $fecha = Carbon::parse($vis->fecha_nacimiento);
-
-        $rangos = GeneracionEdad::get();
-             
-        foreach ($rangos as $value) {
-
-            // Verificar si la fecha está dentro del rango actual
-            if ($fecha->between(Carbon::parse($value->desde), Carbon::parse($value->hasta))) {
-
-                //Se guarda la llave foranea del catalogo en el registro
-                $vis->id_generacion = $value->id;
-                $vis->save();
-            }
-        }
-    }
-
-
    
 }
