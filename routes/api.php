@@ -34,7 +34,7 @@ Route::group([
     Route::post('register', 'App\Http\Controllers\AuthController@register');
 });
 
-Route::get('visitantes/get', 'App\Http\Controllers\VisitantesController@index');
+Route::get('visitantes/get', 'App\Http\Controllers\VisitantesController@getVisitantes');
 Route::post('visitantes/store', 'App\Http\Controllers\VisitantesController@create');
 
 Route::get('menu/get', 'App\Http\Controllers\MenuController@getMenu');

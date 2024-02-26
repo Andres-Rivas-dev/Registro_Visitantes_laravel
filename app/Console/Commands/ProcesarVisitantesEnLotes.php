@@ -33,14 +33,13 @@ class ProcesarVisitantesEnLotes extends Command
      */
     public function handle()
     {
-        // Obtener todos los visitantes en lotes
-        $visitantes = VisitantesController::index();
-
-        // Procesar los visitantes en lotes
-        foreach ($visitantes as $visitante) {
-            VisitantesController::create($visitante);
-            $this->info('Visitante procesado: ' . $visitante->id);
-        }
+        // Procesar los visitantes en lotes de 25
+        Visitantes::chunk(25, function ($visitantes) {
+            foreach ($visitantes as $visitante) {
+                VisitantesController::create($visitante);
+                $this->info('Visitante procesado: ' . $visitante->id);
+            }
+        });
 
         $this->info('¡Los visitantes han sido procesados en lotes!');
     

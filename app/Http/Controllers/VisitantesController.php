@@ -10,9 +10,9 @@ use Carbon\Carbon;
 
 class VisitantesController extends Controller
 {
-    public function index()
+    public function getVisitantes()
     {
-        $get = Visitantes::get();
+        $get = Visitantes::with('generacion')->get();
         return $get;
     }
 
@@ -26,6 +26,7 @@ class VisitantesController extends Controller
             'dui'                  => 'required',
             'nombres'              => 'required',
             'apellidos'            => 'required',
+            'email'                => 'required|email',
             'fecha_nacimiento'     => 'required|date',
             'telefono'             => 'required|min:8',
         ]);
@@ -41,6 +42,7 @@ class VisitantesController extends Controller
         $vis->apellidos = $request->apellidos;
         $vis->fecha_nacimiento = $request->fecha_nacimiento;
         $vis->telefono = $request->telefono;
+        $vis->email    = $request->email;
         $vis->save();
 
         self::clasificacionEdad($vis);       

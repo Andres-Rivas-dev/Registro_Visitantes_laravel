@@ -18,6 +18,12 @@ class Visitantes extends Model
         'nombres',
         'apellidos',
         'fecha_nacimiento',
+        'email',
         'telefono'
     ];
+
+    public function generacion()
+    {
+        return $this->hasOne(GeneracionEdad::class, 'id', 'id_generacion');
+    }
 }
