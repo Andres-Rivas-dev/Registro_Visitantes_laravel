@@ -37,4 +37,6 @@ Route::group([
 Route::get('visitantes/get', 'App\Http\Controllers\VisitantesController@getVisitantes');
 Route::post('visitantes/store', 'App\Http\Controllers\VisitantesController@create');
 
+Route::post('FPGetDiasBloqueados', 'App\Http\Controllers\VisitantesController@FPGetDiasBloqueados');
+
 Route::get('menu/get', 'App\Http\Controllers\MenuController@getMenu');
